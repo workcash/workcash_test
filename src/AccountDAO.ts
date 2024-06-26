@@ -2,6 +2,8 @@ import { Collection, Db } from "mongodb";
 import { MongoClientWrapper } from "./mongodb";
 
 export default class AccountDAO {
+  // A String de conexão com o MongoDB deve ser mantida em um arquivo .env, e não no código.
+  // Está assim para fins de simplificação do exemplo.
   private readonly uri: string =
     "mongodb+srv://workcash:workcash123@cluster0.nsyimxr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
   private client: MongoClientWrapper;
