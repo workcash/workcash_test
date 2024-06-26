@@ -1,27 +1,57 @@
-import { Collection } from "mongodb";
+import { Collection, Db } from "mongodb";
 import { MongoClientWrapper } from "./mongodb";
 
 export default class AccountDAO {
-  uri: string =
+  private readonly uri: string =
     "mongodb+srv://workcash:workcash123@cluster0.nsyimxr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-  collection: Collection<Document>;
-  client: MongoClientWrapper;
+  private client: MongoClientWrapper;
+  private db: Db | null = null;
+  private collection: Collection | null = null;
 
   constructor() {
     this.client = MongoClientWrapper.getInstance(this.uri);
-    this.connect();
-    this.collection = this.client.getDb().collection("account");
   }
-  async connect() {
-    await this.client.connect();
+
+  private async connect(): Promise<void> {
+    if (!this.db) {
+      await this.client.connect();
+      this.db = this.client.getDb();
+      this.collection = this.db.collection("account");
+    }
   }
-  async insertOne(account: any) {
-    this.collection.insertOne(account);
-    this.client.close();
+
+  private async close(): Promise<void> {
+    await this.client.close();
+    this.db = null;
+    this.collection = null;
   }
-  async findOne(query: any) {
-    const account = this.collection.findOne(query);
-    this.client.close();
-    return account;
+
+  public async insertOne(account: Record<string, any>): Promise<void> {
+    try {
+      await this.connect();
+      if (this.collection) {
+        await this.collection.insertOne(account);
+      }
+    } catch (error) {
+      console.error("Error inserting account:", error);
+      throw error;
+    } finally {
+      await this.close();
+    }
+  }
+
+  public async findOne(query: Record<string, any>): Promise<any> {
+    try {
+      await this.connect();
+      if (this.collection) {
+        return await this.collection.findOne(query);
+      }
+      return null;
+    } catch (error) {
+      console.error("Error finding account:", error);
+      throw error;
+    } finally {
+      await this.close();
+    }
   }
 }
