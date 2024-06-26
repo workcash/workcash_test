@@ -1,4 +1,11 @@
-import { signup } from "../src/signup";
+import AccountDAO from "../src/AccountDAO";
+import Signup from "../src/signup";
+
+let signup: Signup;
+beforeEach(() => {
+  const accountDAO = new AccountDAO();
+  signup = new Signup.execute(accountDAO);
+});
 test("deve testar o signup", async function () {
   const input = {
     name: "J Santos",
@@ -6,7 +13,7 @@ test("deve testar o signup", async function () {
     cpf: "97456321558",
   };
 
-  const result = await signup(input);
+  const result = await signup.execute(input);
 
   expect(result).toEqual({ accountId: expect.any(String) });
 });
@@ -18,7 +25,9 @@ test("deve testar o signup com email inválido", async function () {
     cpf: "97456321558",
   };
 
-  await expect(() => signup(input)).rejects.toThrow(new Error("Invalid email"));
+  await expect(() => signup.execute(input)).rejects.toThrow(
+    new Error("Invalid email")
+  );
 });
 
 test("deve testar o signup com cpf inválido", async function () {
@@ -28,7 +37,9 @@ test("deve testar o signup com cpf inválido", async function () {
     cpf: "97456321559",
   };
 
-  await expect(() => signup(input)).rejects.toThrow(new Error("Invalid CPF"));
+  await expect(() => signup.execute(input)).rejects.toThrow(
+    new Error("Invalid CPF")
+  );
 });
 
 test("deve testar o signup com nome inválido", async function () {
@@ -38,5 +49,7 @@ test("deve testar o signup com nome inválido", async function () {
     cpf: "97456321558",
   };
 
-  await expect(() => signup(input)).rejects.toThrow(new Error("Invalid name"));
+  await expect(() => signup.execute(input)).rejects.toThrow(
+    new Error("Invalid name")
+  );
 });
