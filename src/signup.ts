@@ -11,40 +11,21 @@ export async function signup(input: any): Promise<any> {
 
   try {
     const id = crypto.randomUUID();
-
     const acc = await collection.findOne({ email: input.email });
+    if (acc) return -4;
+    if (!input.name.match(/[a-zA-Z] [a-zA-Z]+/)) return -3;
+    if (!input.email.match(/^(.+)@(.+)$/)) return -2;
+    if (!validateCpf(input.cpf)) return -1;
+    await collection.insertOne({
+      accountId: id,
+      name: input.name,
+      email: input.email,
+      cpf: input.cpf,
+    });
 
-    if (!acc) {
-      if (input.name.match(/[a-zA-Z] [a-zA-Z]+/)) {
-        if (input.email.match(/^(.+)@(.+)$/)) {
-          if (validateCpf(input.cpf)) {
-            await collection.insertOne({
-              accountId: id,
-              name: input.name,
-              email: input.email,
-              cpf: input.cpf,
-            });
-
-            const obj = {
-              accountId: id,
-            };
-            return obj;
-          } else {
-            // invalid cpf
-            return -1;
-          }
-        } else {
-          // invalid email
-          return -2;
-        }
-      } else {
-        // invalid name
-        return -3;
-      }
-    } else {
-      // already exists
-      return -4;
-    }
+    return {
+      accountId: id,
+    };
   } finally {
     await client.close();
   }
