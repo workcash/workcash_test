@@ -1,10 +1,10 @@
 import AccountDAO from "../src/AccountDAO";
-import Signup from "../src/signup";
+import Signup from "../src/Signup";
 
 let signup: Signup;
 beforeEach(() => {
   const accountDAO = new AccountDAO();
-  signup = new Signup.execute(accountDAO);
+  signup = new Signup(accountDAO);
 });
 test("deve testar o signup", async function () {
   const input = {
